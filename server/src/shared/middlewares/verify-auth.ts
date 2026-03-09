@@ -8,7 +8,6 @@ import { logger } from "../utils/logger";
 import env from "../../shared/configs/env";
 import { UserRequest } from "../../types/user";
 import { ApiError } from "../errors/api-error";
-import User from "../../modules/user/user.model";
 import { NextFunction, Response } from "express";
 
 const isProduction = env.NODE_ENV === "production";
@@ -27,8 +26,8 @@ export async function verifyAuthentication(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const accessToken = req.cookies?.accessToken;
-  const refreshToken = req.cookies?.refreshToken;
+  const accessToken = req.headers.authorization?.replace("Bearer ", "");
+  // const refreshToken = req.cookies?.refreshToken;
 
   // Step 1: Try validating access token
 
@@ -37,61 +36,64 @@ export async function verifyAuthentication(
       const decoded = verifyAccessToken(accessToken);
       req.user = decoded;
       return next();
+    } else {
+      return next(ApiError.unauthorized("Unauthorized, Please login first."));
     }
   } catch (err) {
     // Access token expired or invalid
     logger.warn("Access token verification failed");
+    return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 
   // Step 2: Refresh token required if access token fails
 
-  if (!refreshToken) {
-    return next(ApiError.unauthorized("Unauthorized, Please login first."));
-  }
+  // if (!refreshToken) {
+  //   return next(ApiError.unauthorized("Unauthorized, Please login first."));
+  // }
 
-  try {
-    const decodedRefresh = verifyRefreshToken(refreshToken);
+  // try {
+  //   const decodedRefresh = verifyRefreshToken(refreshToken);
 
-    // Step 3: Ensure user still exists
+  //   // Step 3: Ensure user still exists
 
-    const userInDb = await User.findOne({
-      _id: decodedRefresh.userId
-    });
+  //   const userInDb = await User.findOne({
+  //     _id: decodedRefresh.userId
+  //   });
 
-    if (!userInDb) {
-      return next(ApiError.unauthorized("Unauthorized, Please login first."));
-    }
+  //   if (!userInDb) {
+  //     return next(ApiError.unauthorized("Unauthorized, Please login first."));
+  //   }
 
-    // Step 4: Issue new tokens
+  //   // Step 4: Issue new tokens
 
-    const newAccessToken = generateAccessToken({
-      _id: userInDb._id.toString()
-    });
+  //   const newAccessToken = generateAccessToken({
+  //     _id: userInDb._id.toString()
+  //   });
 
-    const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
+  //   const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
 
-    // Step 5: Saved accessToken and refreshToken in cookie
-    res.cookie("accessToken", newAccessToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: ACCESS_TOKEN_EXPIRY
-    });
+  //   // Step 5: Saved accessToken and refreshToken in cookie
+  //   res.cookie("accessToken", newAccessToken, {
+  //     ...COOKIE_OPTIONS,
+  //     maxAge: ACCESS_TOKEN_EXPIRY
+  //   });
 
-    res.cookie("refreshToken", newRefreshToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY
-    });
+  //   res.cookie("refreshToken", newRefreshToken, {
+  //     ...COOKIE_OPTIONS,
+  //     maxAge: REFRESH_TOKEN_EXPIRY
+  //   });
 
-    // Step 6: Attach user to request
+  //   // Step 6: Attach user to request
 
-    req.user = {
-      _id: decodedRefresh.userId
-    };
+  //   req.user = {
+  //     _id: decodedRefresh.userId
+  //   };
 
-    // you can update the refresh token in the database here if you store it in the database
+  //   // you can update the refresh token in the database here if you store it in the database
 
-    return next();
-  } catch (err: any) {
-    logger.warn("Refresh token verification failed");
-    return next(ApiError.unauthorized("Unauthorized, Please login first."));
-  }
+  //   return next();
+  // } catch (err: any) {
+  //   logger.warn("Refresh token verification failed");
+  //   return next(ApiError.unauthorized("Unauthorized, Please login first."));
+  // }
 }

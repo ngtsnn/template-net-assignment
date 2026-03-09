@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 import env from "../../shared/configs/env";
 
-const ACCESS_TOKEN_EXPIRY = "15m";
+// currently we don't use refresh token
+// const ACCESS_TOKEN_EXPIRY = "15m";
+const ACCESS_TOKEN_EXPIRY = "30d";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
 // Generate a short-lived access token

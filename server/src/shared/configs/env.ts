@@ -11,10 +11,16 @@ export const envSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
     
-  DATABASE_URL: z.url(),
+  MONGO_URL: z.url(),
+
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string(),
 
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
+
+  AI_API_KEY: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;

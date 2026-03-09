@@ -16,12 +16,12 @@ export const errorHandler = (
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
+  } else {
+    logger.error(
+      err,
+      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+    );
   }
-
-  logger.error(
-    err,
-    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
-  );
 
   const response = {
     success: false,

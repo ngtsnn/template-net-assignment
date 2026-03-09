@@ -1,16 +1,13 @@
-import { Response, Router } from "express";
-import { UserRequest } from "../../types/user";
-import { ApiResponse } from "../../shared/utils/api-response";
+import { Router } from "express";
 import { verifyAuthentication } from "../../shared/middlewares/verify-auth";
+import { getProfile } from "./user.controller";
 
 const router = Router();
 
 router.get(
   "/profile",
   verifyAuthentication,
-  (req: UserRequest, res: Response) => {
-    return ApiResponse.ok(res, "User profile", req.user);
-  }
+  getProfile
 );
 
 export default router;

@@ -4,10 +4,7 @@ export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
-  password: string;
-  role: "user" | "admin";
-  isEmailVerified: boolean;
-
+  passwordHash: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,19 +23,10 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       trim: true
     },
-    password: {
+    passwordHash: {
       type: String,
       select: false,
       default: null
-    },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user"
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false
     }
   },
   {

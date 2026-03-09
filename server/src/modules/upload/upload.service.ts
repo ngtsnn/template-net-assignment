@@ -1,0 +1,48 @@
+import { DeleteApiResponse, UploadApiResponse } from "cloudinary";
+import cloudinary from "../../shared/configs/cloudinary";
+ 
+export interface UploadOptions {
+  folder: string;
+  resource_type?: "image" | "video" | "raw" | "auto";
+}
+ 
+export interface CloudinaryUploadResult {
+  url: string;
+  public_id: string;
+  size: number;
+}
+ 
+export const uploadToCloudinary = (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<UploadApiResponse> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: options.folder || "uploads",
+        resource_type: options.resource_type || "auto"
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+ 
+    stream.end(buffer);
+  });
+};
+ 
+export const deleteFileFromCloudinary = (
+  publicIds: string[]
+): Promise<DeleteApiResponse> => {
+  return new Promise((resolve, reject) => {
+    cloudinary.api.delete_resources(publicIds, (error, result) => {
+      if (error || !result) {
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
