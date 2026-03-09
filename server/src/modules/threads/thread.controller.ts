@@ -220,7 +220,6 @@ export const newMessage = AsyncHandler(
         message: assistantMessage
       });
     } catch (error) {
-    console.log("🔍 ~ AsyncHandler() callback ~ server/src/modules/threads/thread.controller.ts:228 ~ error:", error);
       if (error instanceof ApiError) {
         throw error;
       }
